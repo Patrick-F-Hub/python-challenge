@@ -1,70 +1,79 @@
-# -*- coding: UTF-8 -*-
-"""PyPoll Homework Starter File."""
-
-# Import necessary modules
+# Import modules
 import csv
 import os
 
-# Files to load and output (update with correct file paths)
-file_to_load = os.path.join("Resources", "election_data.csv")  # Input file path
-file_to_output = os.path.join("analysis", "election_analysis.txt")  # Output file path
+# Files to load and output
+inputFile = os.path.join("Resources", "election_data.csv")  # Input file path
+outputFile = os.path.join("analysis", "election_analysis.txt")  # Output file path
 
 # Initialize variables to track the election data
-total_votes = 0  # Track the total number of votes cast
-
-# Define lists and dictionaries to track candidate names and vote counts
-
-
-# Winning Candidate and Winning Count Tracker
-
+totalVotes = 0  # Track the total number of votes cast
+candidates = [] # list that holds the candidates in the election
+candidateVotes = {} # dictionary that will hold the votes each candidate receives
+winningCount = 0 # variable hold the winning count 
+winningCandidate = "" # variable to hold winning candidate
 
 # Open the CSV file and process it
-with open(file_to_load) as election_data:
-    reader = csv.reader(election_data)
+with open(inputFile) as electionData:
+    csvreader = csv.reader(electionData)
 
-    # Skip the header row
-    header = next(reader)
+    # Read the header row
+    header = next(csvreader)
+
+    # rows will be lists
+        # index 0 is the ballot id
+        # index 1 is the county
+        # index 2 is the candidate choice
 
     # Loop through each row of the dataset and process it
-    for row in reader:
+    for row in csvreader:
+        # add on to the total votes
+        totalVotes += 1
 
-        # Print a loading indicator (for large datasets)
-        print(". ", end="")
+        # check to see if candidate is in the list of candidates
+        if row[2] not in candidates:
+            # add candidates if not in the list
+            candidates.append(row[2])
 
-        # Increment the total vote count for each row
+            # add the value to the dictionary as well
+            # {"key": value }
+            # start the count at 1 for the votes
+            candidateVotes[row[2]] = 1
 
+        else:
+            # the candidate is in the list of candidates
+            # add a vote to that candidate's count
+            candidateVotes[row[2]] += 1
 
-        # Get the candidate's name from the row
+    voteOutput = ""
 
+    for candidate in candidateVotes:
+        # get the vote count and the percentage of votes
+        votes = candidateVotes.get(candidate)
+        votePct = (float(votes) / float(totalVotes)) * 100.00    
+        voteOutput += f"\t{candidate}: {votePct:.2f}% ({votes:,}) \n"
+        
+        # compare the votes to the winning count
+        if votes > winningCount:
+            # update the votes to be the new winning count
+            winningCount = votes
+            # update the winning candidate
+            winningCandidate = candidate
 
-        # If the candidate is not already in the candidate list, add them
-
-
-        # Add a vote to the candidate's count
-
-
-# Open a text file to save the output
-with open(file_to_output, "w") as txt_file:
-
-    # Print the total vote count (to terminal)
-
-
-    # Write the total vote count to the text file
-
-
-    # Loop through the candidates to determine vote percentages and identify the winner
-
-
-        # Get the vote count and calculate the percentage
-
-
-        # Update the winning candidate if this one has more votes
-
-
-        # Print and save each candidate's vote count and percentage
-
+winningCandidateOutput = f"\t\tWinner: {winningCandidate}\n-----------------------"
 
     # Generate and print the winning candidate summary
+output = (
+    f"Election Results \n"
+    f"----------------------- \n"
+    f"Total Votes: {totalVotes:,} \n"
+    f"----------------------- \n"
+    f"{voteOutput} \n"
+    f"----------------------- \n"
+    f"{winningCandidateOutput}"
+)
 
-
+print(output)
     # Save the winning candidate summary to the text file
+with open(outputFile, "w") as textfile:
+    textfile.write(output)
